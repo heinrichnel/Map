@@ -1,0 +1,126 @@
+//Filters
+PropertyFilter.jsx
+
+
+import { useState } from 'react';
+import { usePropertyMap } from '../../contexts/PropertyMapContext';
+
+const PropertyFilter = () => {
+  const { searchProperties: filterProperties, filterOptions = {} } = usePropertyMap();
+  const [filters, setFilters] = useState({
+    type: '',
+    status: '',
+    bedrooms: '',
+    bathrooms: '',
+    priceMin: '',
+    priceMax: '',
+  });
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => {
+      const updatedFilters = {
+        ...prev,
+        [name]: value
+      };
+      
+      // Apply filters immediately
+      filterProperties(updatedFilters);
+      
+      return updatedFilters;
+    });
+  };
+
+  const clearFilters = () => {
+    const resetFilters = {
+      type: '',
+      status: '',
+      bedrooms: '',
+      bathrooms: '',
+      priceMin: '',
+      priceMax: '',
+    };
+    setFilters(resetFilters);
+    filterProperties(resetFilters);
+  };
+
+  return (
+    <div className="flex items-center space-x-4">
+      {/* Property Type Filter */}
+      <select
+        name="type"
+        value={filters.type}
+        onChange={handleFilterChange}
+        className="px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+      >
+        <option value="">Property Type</option>
+        {filterOptions?.propertyTypes?.map((type) => (
+          <option key={type} value={type}>
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </option>
+        ))}
+      </select>
+
+      {/* Property Status Filter */}
+      <select
+        name="status"
+        value={filters.status}
+        onChange={handleFilterChange}
+        className="px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+      >
+        <option value="">Status</option>
+        {filterOptions?.statusTypes?.map((status) => (
+          <option key={status} value={status}>
+            {status.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}
+          </option>
+        ))}
+      </select>
+
+      {/* Bedrooms Filter */}
+      <select
+        name="bedrooms"
+        value={filters.bedrooms}
+        onChange={handleFilterChange}
+        className="px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+      >
+        <option value="">Bedrooms</option>
+        <option value="1">1+</option>
+        <option value="2">2+</option>
+        <option value="3">3+</option>
+        <option value="4">4+</option>
+        <option value="5">5+</option>
+      </select>
+
+      {/* Price Range Filter */}
+      <div className="flex space-x-2 items-center">
+        <input
+          type="number"
+          name="priceMin"
+          value={filters.priceMin}
+          onChange={handleFilterChange}
+          placeholder="Min $"
+          className="w-24 px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+        />
+        <span className="text-gray-500">-</span>
+        <input
+          type="number"
+          name="priceMax"
+          value={filters.priceMax}
+          onChange={handleFilterChange}
+          placeholder="Max $"
+          className="w-24 px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      {/* Clear Filters Button */}
+      <button
+        onClick={clearFilters}
+        className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+      >
+        Clear
+      </button>
+    </div>
+  );
+};
+
+export default PropertyFilter;

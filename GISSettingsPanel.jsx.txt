@@ -1,0 +1,166 @@
+//GISSettingsPanel.jsx
+
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+
+/**
+ * GIS Settings Panel component for controlling map displays
+ */
+const GISSettingsPanel = ({
+  enabledLayers = [],
+  onToggleLayer,
+  gisInitialized = false,
+  showEmirates = false,
+  onToggleEmirates,
+  showAreas = false,
+  onToggleAreas,
+  currentEmirate = 'Dubai',
+  onEmirateChange
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const availableEmirateOptions = [
+    'Dubai',
+    'Abu Dhabi',
+    'Sharjah',
+    'Ajman',
+    'Ras Al Khaimah',
+    'Fujairah',
+    'Umm Al Quwain'
+  ];
+  
+  const layerOptions = [
+    { id: 'parcels', label: 'Land Parcels', icon: '🗺️' },
+    { id: 'zoning', label: 'Zoning', icon: '🏙️' },
+    { id: 'schools', label: 'Schools', icon: '🏫' },
+    { id: 'hospitals', label: 'Hospitals', icon: '🏥' },
+    { id: 'metroStations', label: 'Metro Stations', icon: '🚇' },
+    { id: 'busStops', label: 'Bus Stops', icon: '🚌' }
+  ];
+  
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+  
+  return (
+    <div className="absolute top-4 right-4 z-10">
+      <div className={`bg-white rounded-lg shadow-lg transition-all duration-300 ${isExpanded ? 'w-72' : 'w-10'}`}>
+        {/* Toggle Button */}
+        <button
+          onClick={toggleExpanded}
+          className="absolute top-2 right-2 p-1 bg-white rounded-full hover:bg-gray-100"
+        >
+          {isExpanded ? (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          )}
+        </button>
+        
+        {/* Panel Content */}
+        {isExpanded && (
+          <div className="p-4">
+            <h3 className="font-medium text-gray-800 mb-3">Map Settings</h3>
+            
+            {/* Emirates and Areas Section */}
+            <div className="border-b border-gray-200 pb-3 mb-3">
+              <div className="mb-2">
+                <label className="flex items-center space-x-2">
+                  <input 
+                    type="checkbox" 
+                    checked={showEmirates}
+                    onChange={(e) => onToggleEmirates(e.target.checked)}
+                    className="rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm">Show Emirates Boundaries</span>
+                </label>
+              </div>
+              
+              <div className="mb-2">
+                <label className="flex items-center space-x-2">
+                  <input 
+                    type="checkbox" 
+                    checked={showAreas}
+                    onChange={(e) => onToggleAreas(e.target.checked)}
+                    className="rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm">Show Area Boundaries</span>
+                </label>
+              </div>
+              
+              {showAreas && (
+                <div className="mt-2">
+                  <label htmlFor="emirate-select" className="block text-xs text-gray-600 mb-1">
+                    Select Emirate for Areas
+                  </label>
+                  <select
+                    id="emirate-select"
+                    value={currentEmirate}
+                    onChange={(e) => onEmirateChange(e.target.value)}
+                    className="w-full text-sm border border-gray-300 rounded-md p-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    {availableEmirateOptions.map((emirate) => (
+                      <option key={emirate} value={emirate}>
+                        {emirate}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            
+            {/* GIS Layers Section */}
+            <div>
+              <h4 className="font-medium text-sm text-gray-700 mb-2">GIS Layers</h4>
+              
+              {!gisInitialized && (
+                <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded mb-2">
+                  GIS services are not available. Some features may be limited.
+                </div>
+              )}
+              
+              <div className="space-y-1">
+                {layerOptions.map((layer) => (
+                  <label 
+                    key={layer.id} 
+                    className="flex items-center justify-between p-1 hover:bg-gray-50 rounded cursor-pointer"
+                  >
+                    <div className="flex items-center">
+                      <span className="mr-2">{layer.icon}</span>
+                      <span className="text-sm">{layer.label}</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={enabledLayers.includes(layer.id)}
+                      onChange={() => onToggleLayer(layer.id)}
+                      disabled={!gisInitialized}
+                      className="rounded text-blue-600 focus:ring-blue-500"
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+GISSettingsPanel.propTypes = {
+  enabledLayers: PropTypes.arrayOf(PropTypes.string),
+  onToggleLayer: PropTypes.func,
+  gisInitialized: PropTypes.bool,
+  showEmirates: PropTypes.bool,
+  onToggleEmirates: PropTypes.func,
+  showAreas: PropTypes.bool,
+  onToggleAreas: PropTypes.func,
+  currentEmirate: PropTypes.string,
+  onEmirateChange: PropTypes.func
+};
+
+export default GISSettingsPanel;
